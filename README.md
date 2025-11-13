@@ -37,7 +37,7 @@ The notebook contains the following main components:
 - **Transfer Learning Ready**: Structure compatible with pre-trained models
 
 ## Dataset
-The dataset is located in the `archive/images/images` directory and contains 15,000 images organized into 30 garbage categories, making it suitable for training robust waste classification models.
+The dataset contains 15,000 images organized into 30 garbage categories, making it suitable for training robust waste classification models.
 
 ## Requirements
 - Python 3.11
