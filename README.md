@@ -1,58 +1,110 @@
-# Garbage Classification Project
+# Garbage Classification with Deep Learning
 
-## Overview
-This Jupyter Notebook implements a garbage classification system using deep learning with TensorFlow/Keras. The model is designed to classify images of waste items into 30 different categories for recycling and waste management purposes.
+This project implements a multi-class image classification system to identify 30 different types of garbage items using deep learning. The goal is to automate waste sorting for recycling applications.
 
-## Project Structure
-The notebook contains the following main components:
+## 📌 Overview
 
-### 1. Environment Setup
-- Installation of required dependencies:
-  - `pydot` for model visualization
-  - `tensorflow-macos` for TensorFlow on macOS
-  - `tensorflow-metal` for GPU acceleration on Apple Silicon
-- GPU availability check using TensorFlow
+The system uses three different neural network architectures:
 
-### 2. Data Loading and Preprocessing
-- Uses Keras `image_dataset_from_directory` to load images
-- Dataset split: 70% training (10,500 images) and 30% validation (4,500 images)
-- Image size: 180x180 pixels
-- Batch size: 128
-- 30 different garbage categories
+1. **Custom CNN** – Built from scratch with residual connections and separable convolutions.
+2. **ResNet50** – Transfer learning using a pre-trained ResNet50 model (frozen, only new classifier trained).
+3. **ResNet152** – Transfer learning with the deeper ResNet152 model for improved feature extraction.
 
-### 3. Data Exploration
-- Visualization of the first 9 images from the dataset
-- Display of class names including:
-  - Various plastic items (bottles, bags, containers)
-  - Glass containers
-  - Paper products
-  - Metal cans
-  - Organic waste
-  - Textiles and other materials
+The models are trained on the **Garbage Classification Dataset** containing 30 categories of waste items (plastic, paper, glass, metal, organic, etc.).
 
-## Key Features
-- **Multi-class Classification**: 30 different garbage categories
-- **Data Augmentation**: Built-in image preprocessing
-- **GPU Acceleration**: Optimized for macOS with Metal support
-- **Transfer Learning Ready**: Structure compatible with pre-trained models
+## 🗂️ Dataset
 
-## Dataset
-The dataset contains 15,000 images organized into 30 garbage categories, making it suitable for training robust waste classification models.
+- **Source**: [Garbage Classification Dataset](https://www.kaggle.com/datasets/asdasdasasdas/garbage-classification)
+- **Classes**: 30 (e.g., plastic bottles, cardboard boxes, glass jars, food waste, tea bags, etc.)
+- **Total images**: 15,000
+- **Split**: 70% training (10,500 images), 30% validation (4,500 images)
+- **Image sizes**: 
+  - Custom CNN & ResNet50: 180×180
+  - ResNet152: 224×224
 
-## Requirements
-- Python 3.11
-- TensorFlow 2.16.2
-- Keras 3.6.0
-- Additional dependencies listed in the installation cells
+## 🧠 Models & Approach
 
-## Usage
-1. Ensure all dependencies are installed
-2. Verify GPU availability (if using macOS with M1 chip)
-3. Run the cells sequentially to:
-   - Load and preprocess the data
-   - Explore the dataset
-   - Train the classification model
-   - Evaluate model performance
+### 1. Custom CNN
+- Residual blocks with separable convolutions
+- Progressive filter increase: 128 → 256 → 512 → 728 → 1024
+- Batch normalization, ReLU activations, dropout (0.5)
+- Output: 30-class logits (softmax applied at inference)
+- **Trainable parameters**: 2.75M
 
-## Note
-The notebook sets up the foundation for building and training a convolutional neural network for waste categorization, which is crucial for recycling automation and waste management systems.
+### 2. ResNet50 (Transfer Learning)
+- Pre-trained on ImageNet (frozen)
+- Global average pooling + Dense(30, softmax)
+- **Trainable parameters**: 61,470
+
+### 3. ResNet152 (Transfer Learning)
+- Deeper pre-trained ResNet152 (frozen)
+- Global average pooling + Dense(30, softmax)
+- **Trainable parameters**: 61,470
+
+### Training Configuration
+- **Optimizer**: Adam
+- **Initial learning rate**: 0.001
+- **Learning rate scheduling**: ReduceLROnPlateau (factor 0.2, patience 3)
+- **Early stopping**: patience 5
+- **Loss**: Categorical cross-entropy (from_logits for custom model)
+- **Data augmentation**: random flips, brightness, contrast
+
+## 📊 Results
+
+| Model | Validation Accuracy | Trainable Params | Training Time/epoch |
+|-------|---------------------|------------------|---------------------|
+| Custom CNN | 76.8% | 2,752,502 | ~530 sec |
+| ResNet50 | **82.2%** | 61,470 | ~250 sec |
+| ResNet152 | **84.4%** | 61,470 | ~355 sec |
+
+**Key takeaways**:
+- Transfer learning dramatically improves performance with far fewer trainable parameters.
+- ResNet152 slightly outperforms ResNet50, showing deeper features help distinguish visually similar classes.
+- The remaining errors are mainly between similar materials (e.g., cardboard vs paper, metal cans).
+
+## ⚙️ Requirements
+
+Install the dependencies with:
+
+```bash
+pip install tensorflow keras numpy matplotlib scikit-learn seaborn
+```
+
+## 🚀 How to Run
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/garbage-classification.git
+   cd garbage-classification
+   ```
+
+2. Download the dataset and place it in `archive/images/` (or adjust paths in the notebook).
+
+3. Launch Jupyter Notebook:
+   ```bash
+   jupyter notebook Garbage_classifier_enhanced.ipynb
+   ```
+
+4. Run the cells sequentially to:
+   - Load and augment data
+   - Build and train the custom CNN
+   - Load and train ResNet50 and ResNet152
+   - Evaluate models with classification reports and confusion matrices
+   - Test inference on a sample image
+
+## 📈 Evaluation
+
+- **Classification Reports**: Precision, recall, F1-score per class.
+- **Confusion Matrices**: Visualize misclassifications.
+- **Training Curves**: Accuracy and loss over epochs.
+
+
+
+## 🙏 Acknowledgements
+
+- Dataset: [Garbage Classification Dataset](https://www.kaggle.com/datasets/asdasdasasdas/garbage-classification)
+- Keras Applications for pre-trained ResNet models.
+
+---
+
+**Note**: The notebook (`Garbage_classifier_enhanced.ipynb`) contains the full implementation, including data loading, augmentation, model definition, training, evaluation, and inference.
